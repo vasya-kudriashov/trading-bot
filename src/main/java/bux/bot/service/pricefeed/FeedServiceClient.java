@@ -32,8 +32,8 @@ public class FeedServiceClient {
     private Session session;
     private CountDownLatch latch;
     private TradingData tradingData;
-    private Boolean isMarketAboveBuyPriceOnStart;
     private OpenedPosition openedPosition = OpenedPosition.builder().build();
+    private Boolean isMarketAboveBuyPriceOnStart;
 
     @Builder
     public FeedServiceClient(TradingData tradingData, CountDownLatch latch) {
@@ -78,9 +78,13 @@ public class FeedServiceClient {
                 )
                 .build();
 
+        sendText(objectMapper.writeValueAsString(request));
+    }
+
+    private void sendText(String text) throws IOException {
         session
                 .getBasicRemote()
-                .sendText(objectMapper.writeValueAsString(request));
+                .sendText(text);
     }
 
     private void handleTradingQuote(FeedResponse response) {
@@ -92,9 +96,9 @@ public class FeedServiceClient {
             isMarketAboveBuyPriceOnStart = currentPrice.compareTo(tradingData.getOpenPrice()) > 0;
         }
 
-        if (openedPosition.getPrice().getAmount() == null) { //isOpenPositionCaseFulfilled(currentPrice)) {
+        if (isOpenPositionCaseFulfilled(currentPrice)) {
             openPosition();
-        } else if (openedPosition.getPrice().getAmount().add(BigDecimal.ONE).compareTo(currentPrice) < 0) {//isClosePositionCaseFulfilled(currentPrice)) {
+        } else if (isClosePositionCaseFulfilled(currentPrice)) {
             closePosition();
             latch.countDown();
         }
@@ -113,7 +117,7 @@ public class FeedServiceClient {
 
     private boolean isOpenPositionCaseFulfilled(BigDecimal price) {
         return (openedPosition.getPrice().getAmount() == null)
-                    && (isMarketAboveBuyPriceOnStart // do we open position following a trend or against it?
+                    && (isMarketAboveBuyPriceOnStart // if we open position following a trend or against it
                     ? price.compareTo(tradingData.getOpenPrice()) <= 0
                     : price.compareTo(tradingData.getOpenPrice()) >= 0);
     }

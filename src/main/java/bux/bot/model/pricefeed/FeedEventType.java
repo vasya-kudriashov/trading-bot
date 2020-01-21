@@ -4,7 +4,7 @@ public enum FeedEventType {
     CONNECT_CONNECTED("connect.connected"),
     CONNECT_FAILED("connect.failed"),
     TRADING_QUOTE("trading.quote"),
-    UNKNOWN("");
+    UNKNOWN("unknown.event");
 
     private String type;
 

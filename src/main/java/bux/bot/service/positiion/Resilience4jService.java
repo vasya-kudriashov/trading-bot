@@ -72,9 +72,8 @@ public abstract class Resilience4jService<T> {
                 .builder()
                 .build();
 
-        if (throwable != null && throwable.getCause() != null) {
-            String responseBody = ((HttpClientErrorException) throwable
-                    .getCause())
+        if (throwable.getCause() instanceof HttpClientErrorException) {
+            String responseBody = ((HttpClientErrorException) throwable.getCause())
                     .getResponseBodyAsString();
 
             try {
@@ -117,14 +116,14 @@ public abstract class Resilience4jService<T> {
             } catch (Exception e1) {
                 logger
                         .error()
-                        .exception("Resilience error", e1)
+                        .exception("Constructor object instantiation error.", e1)
                         .field("URL", url)
                         .log();
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             logger
                     .error()
-                    .exception("Resilience error", e)
+                    .exception("Builder object instantiation error", e)
                     .field("URL", url)
                     .log();
         }

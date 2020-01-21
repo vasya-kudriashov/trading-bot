@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class FeedService {
     private static final String SERVICE_RESOURCE = "/subscriptions/me";
-    private static final String SERVICE_HOST = "ws://localhost:8080";//"wss://rtf.beta.getbux.com";
+    private static final String SERVICE_HOST = "wss://rtf.beta.getbux.com";
     private static Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     public void start(TradingData tradingData) {
@@ -24,8 +24,8 @@ public class FeedService {
                                     .tradingData(tradingData)
                                     .latch(latch)
                                     .build(),
-                             UriComponentsBuilder
-                                     .fromUriString(SERVICE_HOST)
+                            UriComponentsBuilder
+                                    .fromUriString(SERVICE_HOST)
                                     .path(SERVICE_RESOURCE)
                                     .build()
                                     .encode()
