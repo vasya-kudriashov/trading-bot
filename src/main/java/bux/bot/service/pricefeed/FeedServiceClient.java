@@ -1,5 +1,6 @@
 package bux.bot.service.pricefeed;
 
+import bux.bot.model.exception.FailedPositionOpeningException;
 import bux.bot.model.shared.TradingData;
 import bux.bot.model.position.ClosedPosition;
 import bux.bot.model.position.OpenedPosition;
@@ -48,27 +49,18 @@ public class FeedServiceClient {
 
     @OnMessage
     public void onMessage(String message) throws IOException {
-        FeedResponse response = FeedResponse.builder().build();
-        try {
-            response = objectMapper.readValue(message, FeedResponse.class);
-        } catch (IOException e) {
-            logger
-                    .error()
-                    .exception("Feed message convert error", e)
-                    .field("message", message)
-                    .log();
-        }
+        FeedResponse response = objectMapper.readValue(message, FeedResponse.class);
 
-        if (response.getType() != null) {
+        if (response != null && response.getType() != null) {
             switch (FeedEventType.getByType(response.getType())) {
                 case CONNECT_CONNECTED:
                     subscribeToFeed();
                     break;
-                case TRADING_QUOTE:
-                    handleTradingQuote(response);
-                    break;
                 case CONNECT_FAILED:
                     handleFailedConnection(response);
+                    break;
+                case TRADING_QUOTE:
+                    handleTradingQuote(response);
                     break;
                 default:
                     break;
@@ -80,7 +72,9 @@ public class FeedServiceClient {
         FeedRequest request = FeedRequest
                 .builder()
                 .subscribeTo(Collections.singletonList(
-                        tradingData.getTradingProduct().getRequestName())
+                        tradingData
+                                .getTradingProduct()
+                                .getRequestName())
                 )
                 .build();
 
@@ -127,19 +121,37 @@ public class FeedServiceClient {
     private void openPosition() {
         openedPosition = openPositionService.openPosition(getTrade());
 
-        if (openedPosition.getPrice().getAmount() != null) {
-            System.out.println(String.format(
-                    "New position has been opened at price level %s%s and invested %s%s",
-                    openedPosition.getPrice().getAmount(),
-                    openedPosition.getPrice().getCurrency(),
-                    openedPosition.getInvestingAmount().getAmount(),
-                    openedPosition.getInvestingAmount().getCurrency()
-            ));
+        /*
+         * If something goes wrong with position opening, so market goes away
+         * and input data is not relevant anymore, stop everything
+         */
+        if (openedPosition.getPrice().getAmount() == null) {
+            handleFailedPositionOpening();
+
+            latch.countDown();
         }
+
+        System.out.println(String.format(
+                "New position has been opened at price level %s%s and invested %s%s",
+                openedPosition.getPrice().getAmount(),
+                openedPosition.getPrice().getCurrency(),
+                openedPosition.getInvestingAmount().getAmount(),
+                openedPosition.getInvestingAmount().getCurrency()
+        ));
+    }
+
+    private void handleFailedPositionOpening() {
+        System.out.println("An error during position's opening occurred.");
+        logger
+                .error()
+                .exception(
+                        "An error during position's opening occurred.",
+                        new FailedPositionOpeningException()
+                )
+                .log();
     }
 
     // Example trade object with sample data
-
     private Trade getTrade() {
         return Trade
                     .builder()
@@ -171,6 +183,11 @@ public class FeedServiceClient {
 
     private void closePosition() {
         ClosedPosition closedPosition = ClosedPosition.builder().build();
+
+        /*
+         * try to close opened position as many times as possible in a case of error during closing,
+         * in meanwhile developers will be annoyed via ClosePositionService logging that something goes wrong!
+         */
         while (closedPosition.getPrice().getAmount() == null) {
             closedPosition = closePositionService.closePosition(openedPosition.getPositionId());
         }
@@ -195,6 +212,8 @@ public class FeedServiceClient {
                 .field("Error code", response.getBody().getErrorCode())
                 .field("Message", response.getBody().getDeveloperMessage())
                 .log();
+
+        latch.countDown();
     }
 
     @OnClose

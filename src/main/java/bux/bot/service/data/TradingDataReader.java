@@ -40,19 +40,25 @@ public class TradingDataReader {
     }
 
     private static TradingProduct getTradingProduct(Scanner scanner) {
-        TradingProduct tradingProduct;
         System.out.print("Please input product id you would like bux-bot to trade: ");
 
-        while ((tradingProduct = TradingProduct.getById(scanner.nextLine())).equals(TradingProduct.UNKNOWN)) {
+        TradingProduct tradingProduct = TradingProduct
+                .getById(scanner.nextLine())
+                .orElse(null);
+
+        while (tradingProduct == null) {
             System.out.print(String.format(
                     "Trading product with this id doesn't exist, fetch one of [%s]: ",
                     Arrays
                             .stream(TradingProduct.values())
-                            .filter(p -> !p.equals(TradingProduct.UNKNOWN))
                             .map(TradingProduct::getId)
                             .collect(Collectors.joining(", "))
             ));
+            tradingProduct = TradingProduct
+                    .getById(scanner.nextLine())
+                    .orElse(null);
         }
+
         return tradingProduct;
     }
 
