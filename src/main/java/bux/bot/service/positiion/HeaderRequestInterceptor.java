@@ -8,19 +8,18 @@ import org.springframework.http.client.ClientHttpResponse;
 import java.io.IOException;
 
 public class HeaderRequestInterceptor implements ClientHttpRequestInterceptor {
+    private final String name;
+    private final String value;
 
-    private final String headerName;
-
-    private final String headerValue;
-
-    public HeaderRequestInterceptor(String headerName, String headerValue) {
-        this.headerName = headerName;
-        this.headerValue = headerValue;
+    public HeaderRequestInterceptor(String name, String value) {
+        this.name = name;
+        this.value = value;
     }
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        request.getHeaders().set(headerName, headerValue);
+    public ClientHttpResponse intercept(HttpRequest request, byte[] body,
+                                        ClientHttpRequestExecution execution) throws IOException {
+        request.getHeaders().set(name, value);
         return execution.execute(request, body);
     }
 }

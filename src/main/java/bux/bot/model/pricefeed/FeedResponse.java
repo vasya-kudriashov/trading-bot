@@ -8,15 +8,15 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter @Builder
-@JsonDeserialize(builder = PriceFeedResponse.PriceFeedResponseBuilder.class)
-public class PriceFeedResponse {
+@JsonDeserialize(builder = FeedResponse.FeedResponseBuilder.class)
+public class FeedResponse {
     private String type;
     @Builder.Default
-    private PriceFeedResponseBody body = PriceFeedResponseBody.builder().build();
+    private FeedResponseBody body = FeedResponseBody.builder().build();
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonPOJOBuilder(withPrefix = "")
-    public static class PriceFeedResponseBuilder {
+    public static class FeedResponseBuilder {
         @JsonProperty("t")
         private String type;
     }

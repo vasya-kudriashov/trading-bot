@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
+// TODO Consider some ready-made currency representation domain, e.g. CurrencyUnit
 @Getter @Builder
 @JsonDeserialize(builder = PriceAmount.PriceAmountBuilder.class)
 public class PriceAmount {
     private String currency;
     private int decimals;
-    private float amount;
+    private BigDecimal amount;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class PriceAmountBuilder { }

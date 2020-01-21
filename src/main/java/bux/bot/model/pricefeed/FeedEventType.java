@@ -1,6 +1,6 @@
 package bux.bot.model.pricefeed;
 
-public enum PriceFeedServiceEventType {
+public enum FeedEventType {
     CONNECT_CONNECTED("connect.connected"),
     CONNECT_FAILED("connect.failed"),
     TRADING_QUOTE("trading.quote"),
@@ -8,7 +8,7 @@ public enum PriceFeedServiceEventType {
 
     private String type;
 
-    PriceFeedServiceEventType(String type) {
+    FeedEventType(String type) {
         this.type = type;
     }
 
@@ -16,7 +16,7 @@ public enum PriceFeedServiceEventType {
         return type;
     }
 
-    public static PriceFeedServiceEventType getByType(String type) {
+    public static FeedEventType getByType(String type) {
         if (type.equals(CONNECT_CONNECTED.getType())) {
             return CONNECT_CONNECTED;
         } else if (type.equals(CONNECT_FAILED.getType())) {

@@ -1,24 +1,22 @@
-package bux.bot.model.general;
+package bux.bot.model.shared;
 
 import java.util.Arrays;
 
 public enum TradingProduct {
-    GERMANY_30("sb26493"),
-    US_500("sb26496"),
-    EUR_USD("sb26502"),
-    GOLD("sb26500"),
-    APPLE("sb26513"),
-    DEUTSCHE_BANK("sb28248"),
-    UNKNOWN("0");
+    GERMANY_30("sb26493", 1),
+    US_500("sb26496",2),
+    EUR_USD("sb26502",5),
+    GOLD("sb26500",1),
+    APPLE("sb26513",2),
+    DEUTSCHE_BANK("sb28248",2),
+    UNKNOWN("0",0);
 
     private String id;
+    private int decimals;
 
-    public String getId() {
-        return id;
-    }
-
-    TradingProduct(String id) {
+    TradingProduct(String id, int decimals) {
         this.id = id;
+        this.decimals = decimals;
     }
 
     public String getRequestName() {
@@ -31,5 +29,13 @@ public enum TradingProduct {
                 .filter(e -> e.id.equals(id))
                 .findFirst()
                 .orElse(UNKNOWN);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public int getDecimals() {
+        return decimals;
     }
 }

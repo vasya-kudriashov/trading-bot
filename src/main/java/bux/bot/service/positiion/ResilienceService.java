@@ -1,13 +1,17 @@
 package bux.bot.service.positiion;
 
+import bux.bot.model.position.PositionErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.savoirtech.logging.slf4j.json.LoggerFactory;
+import com.savoirtech.logging.slf4j.json.logger.Logger;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.vavr.control.Try;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
@@ -18,8 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public abstract class ResilienceService<T> {
-    private int timeout = 2000;
     private static Logger logger = LoggerFactory.getLogger(ResilienceService.class);
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    private int timeout = 2000;
 
     @SuppressWarnings("unchecked")
     private Class<T> clazz = (Class<T>)((ParameterizedType) this.getClass().getGenericSuperclass())
@@ -63,8 +68,33 @@ public abstract class ResilienceService<T> {
     }
 
     protected T fallback(Throwable throwable, String url) {
-        throwable.printStackTrace();
-        logger.error("Resilience error", throwable);
+        PositionErrorResponse responseOnError = PositionErrorResponse
+                .builder()
+                .build();
+
+        if (throwable != null && throwable.getCause() != null) {
+            String responseBody = ((HttpClientErrorException) throwable
+                    .getCause())
+                    .getResponseBodyAsString();
+
+            try {
+                responseOnError = objectMapper.readValue(responseBody, PositionErrorResponse.class);
+            } catch (IOException e) {
+                logger
+                        .error()
+                        .exception(e.getMessage(), e)
+                        .log();
+            }
+        }
+
+        logger
+                .error()
+                .exception("Resilience error", new Exception(throwable))
+                .field("URL", url)
+                .field("Error message", responseOnError.getMessage())
+                .field("Developer message", responseOnError.getDeveloperMessage())
+                .field("Error code", responseOnError.getErrorCode())
+                .log();
 
         return initResultObject(url);
     }
@@ -85,10 +115,18 @@ public abstract class ResilienceService<T> {
             try {
                 result = clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e1) {
-                e1.printStackTrace();
+                logger
+                        .error()
+                        .exception("Resilience error", e1)
+                        .field("URL", url)
+                        .log();
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger
+                    .error()
+                    .exception("Resilience error", e)
+                    .field("URL", url)
+                    .log();
         }
 
         return result;

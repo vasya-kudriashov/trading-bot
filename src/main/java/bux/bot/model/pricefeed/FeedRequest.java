@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Builder
-public class PriceFeedRequest {
+public class FeedRequest {
     @Builder.Default
     private List<String> subscribeTo = new ArrayList<>();
     @Builder.Default
