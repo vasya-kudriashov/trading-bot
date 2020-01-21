@@ -11,7 +11,8 @@
     <properties>
         <spring.version>5.2.0.RELEASE</spring.version>
         <resilence4j.version>0.13.2</resilence4j.version>
-        <log4j>2.7</log4j>
+        <log4j.version>2.7</log4j.version>
+        <jmockit.version>1.44</jmockit.version>
     </properties>
 
     <dependencies>
@@ -63,12 +64,12 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${log4j}</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j}</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.savoirtech.logging</groupId>
@@ -78,7 +79,7 @@
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
-            <version>1.44</version>
+            <version>${jmockit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -110,20 +111,8 @@
                 <version>2.22.2</version>
                 <configuration>
                     <argLine>
-                        -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.44/jmockit-1.44.jar
+                        -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
                     </argLine>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.bux.bot.TradingBotApp</mainClass>
-                        </manifest>
-                    </archive>
                 </configuration>
             </plugin>
         </plugins>
