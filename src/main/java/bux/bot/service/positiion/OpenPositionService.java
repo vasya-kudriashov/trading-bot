@@ -9,7 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Arrays;
 
-public class OpenPositionService extends ResilienceService<OpenedPosition> {
+public class OpenPositionService extends Resilience4jService<OpenedPosition> {
     // TODO Store in .properties in order to separate configuration from code
     private static final String SERVICE_RESOURCE = "/core/21/users/me/trades";
     private static final String SERVICE_HOST = "http://localhost:8080";//"https://api.getbux.com";

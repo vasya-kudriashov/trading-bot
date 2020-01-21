@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public abstract class ResilienceService<T> {
-    private static Logger logger = LoggerFactory.getLogger(ResilienceService.class);
+public abstract class Resilience4jService<T> {
+    private static Logger logger = LoggerFactory.getLogger(Resilience4jService.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
     private int timeout = 2000;
 

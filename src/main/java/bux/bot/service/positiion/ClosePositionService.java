@@ -8,7 +8,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Arrays;
 
-public class ClosePositionService extends ResilienceService<ClosedPosition> {
+public class ClosePositionService extends Resilience4jService<ClosedPosition> {
     // TODO Store in .properties in order to separate configuration form code
     private static final String SERVICE_RESOURCE = "/core/21/users/me/portfolio/positions/%s";
     private static final String SERVICE_HOST = "http://localhost:8080";//"https://api.beta.getbux.com";
