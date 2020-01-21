@@ -6,7 +6,6 @@ import com.savoirtech.logging.slf4j.json.logger.Logger;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.websocket.ContainerProvider;
-import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 
 public class FeedService {
@@ -15,13 +14,6 @@ public class FeedService {
     private static Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     public void start(TradingData tradingData) {
-        URI uri = UriComponentsBuilder
-                .fromUriString(SERVICE_HOST)
-                .path(SERVICE_RESOURCE)
-                .build()
-                .encode()
-                .toUri();
-
         CountDownLatch latch = new CountDownLatch(1);
         try {
             ContainerProvider
@@ -32,14 +24,19 @@ public class FeedService {
                                     .tradingData(tradingData)
                                     .latch(latch)
                                     .build(),
-                            uri
+                             UriComponentsBuilder
+                                     .fromUriString(SERVICE_HOST)
+                                    .path(SERVICE_RESOURCE)
+                                    .build()
+                                    .encode()
+                                    .toUri()
                     );
             latch.await();
         } catch (Exception e) {
-            System.out.println("Error during connection occurred.");
+            System.out.println("Error during connection to price feed occurred.");
             logger
                     .error()
-                    .exception("Error during connection occurred.", e)
+                    .exception("Error during connection to price feed occurred.", e)
                     .log();
         }
     }
