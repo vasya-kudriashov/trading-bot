@@ -4,7 +4,6 @@ import com.bux.bot.model.shared.TradingData;
 import com.bux.bot.model.shared.TradingProduct;
 import com.savoirtech.logging.slf4j.json.LoggerFactory;
 import com.savoirtech.logging.slf4j.json.logger.Logger;
-import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -70,7 +69,7 @@ public class TradingDataReader {
 
         while (!isDataValid) {
             try {
-                buyPrice = new BigDecimalStringConverter().fromString(scanner.nextLine());
+                buyPrice = new BigDecimal(scanner.nextLine());
 
                 if (buyPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
                     System.out.print("Trading product price should be positive, try again: ");
@@ -102,7 +101,7 @@ public class TradingDataReader {
 
         while (!isDataValid) {
             try {
-                sellPrice = new BigDecimalStringConverter().fromString(scanner.nextLine());
+                sellPrice = new BigDecimal(scanner.nextLine());
 
                 if (sellPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
                     System.out.print("Sell price should be positive, try again: ");
@@ -139,7 +138,7 @@ public class TradingDataReader {
 
         while (!isDataValid) {
             try {
-                stopLossPrice = new BigDecimalStringConverter().fromString(scanner.nextLine());
+                stopLossPrice = new BigDecimal(scanner.nextLine());
 
                 if (stopLossPrice.compareTo(BigDecimal.valueOf(0)) <= 0) {
                     System.out.print("Buy price should be positive, try again: ");

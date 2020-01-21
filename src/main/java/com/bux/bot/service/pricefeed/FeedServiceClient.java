@@ -110,8 +110,8 @@ public class FeedServiceClient {
                 securityId,
                 currentPrice,
                 (openedPosition.getPrice().getAmount() != null)
-                        ? "Opened at " + openedPosition.getPrice().getAmount()
-                        : "On Hold"
+                        ? "opened at " + openedPosition.getPrice().getAmount()
+                        : "on hold"
         ));
     }
 
@@ -125,23 +125,23 @@ public class FeedServiceClient {
     private void openPosition() {
         openedPosition = openPositionService.openPosition(getTrade());
 
-        /*
-         * If something goes wrong with position opening, so market goes away
-         * and input data is not relevant anymore, stop everything
-         */
-        if (openedPosition.getPrice().getAmount() == null) {
+        if (openedPosition.getPrice().getAmount() != null) {
+            System.out.println(String.format(
+                    "New position has been opened at price level %s%s and invested %s%s",
+                    openedPosition.getPrice().getAmount(),
+                    openedPosition.getPrice().getCurrency(),
+                    openedPosition.getInvestingAmount().getAmount(),
+                    openedPosition.getInvestingAmount().getCurrency()
+            ));
+        } else {
             handleFailedPositionOpening();
 
+            /*
+             * If something goes wrong with position opening, so market goes away
+             * and input data is not relevant anymore, stop everything
+             */
             latch.countDown();
         }
-
-        System.out.println(String.format(
-                "New position has been opened at price level %s%s and invested %s%s",
-                openedPosition.getPrice().getAmount(),
-                openedPosition.getPrice().getCurrency(),
-                openedPosition.getInvestingAmount().getAmount(),
-                openedPosition.getInvestingAmount().getCurrency()
-        ));
     }
 
     private void handleFailedPositionOpening() {
